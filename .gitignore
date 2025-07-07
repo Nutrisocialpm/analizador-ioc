@@ -14,3 +14,5 @@ secrets.json
 tests/
 site/
 .cache/
+!requirements.txt
+!secrets-sample.json
