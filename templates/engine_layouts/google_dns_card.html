@@ -1,0 +1,50 @@
+<div class="card">
+    <h3>Google DNS (common records)</h3>
+    {% if analysis_results.results[0].google_dns.Answer %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Data</th>
+                <th>TTL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in analysis_results.results[0].google_dns.Answer %}
+            {% if record.type_name in ['SPF', 'DMARC'] %}
+            <tr>
+                <td>{{ record.type_name }}</td>
+                <td>
+                    {% if record.present %}
+                    <strong>Present</strong><br>
+                    <span title="{{ record.data }}">{{ record.data[:50] }}{% if record.data and record.data|length > 50
+                        %}...{% endif %}</span>
+                    {% if record.parsed %}
+                    <br>
+                    <small>
+                        {% for k, v in record.parsed.items() %}
+                        <b>{{ k }}</b>: {{ v }}<br>
+                        {% endfor %}
+                    </small>
+                    {% endif %}
+                    {% else %}
+                    <span>No {{ record.type_name }} record found</span>
+                    {% endif %}
+                </td>
+                <td>-</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ record.type_name }}</td>
+                <td title="{{ record.data }}">{{ record.data[:50] }}{% if record.data and record.data|length > 50
+                    %}...{% endif %}</td>
+                <td>{{ record.TTL if record.TTL is defined else '-' }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No DNS records found</p>
+    {% endif %}
+</div>

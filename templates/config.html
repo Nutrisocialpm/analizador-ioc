@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Cyberbro - Configuration{% endblock title %}
+
+{% block content %}
+{{ super() }}
+<h1>{{ self.title() }}</h1>
+
+<form id="configForm">
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for key, value in secrets.items() %}
+            <tr>
+                {% if key not in ["gui_enabled_engines", "api_prefix", "config_page_enabled", "ssl_verify"] and not key.startswith("supervisor") %}
+                    <td style="width: 15%;">
+                        <label class="secrets_key" for="secret_{{ key }}">{{ key }}</label>
+                    </td>
+                    <td style="width:50%">
+                        <input class="secrets_value" type="password" id="secret_{{ key }}" name="{{ key }}"
+                            value="{{ value }}" readonly>
+                    </td>
+                    <td style="width: 15%">
+                        <button type="button" id="edit_{{ key }}" onclick="editSecret('{{ key }}')">✏️</button>
+                        <button type="button" id="cancel_{{ key }}" onclick="cancelEdit('{{ key }}', '{{ value }}', 'password')"
+                            style="display:none;">
+                            ❌
+                        </button>
+                        <button type="button" id="validate_{{ key }}" onclick="validateEdit('{{ key }}', 'password')"
+                            style="display:none;">
+                            ✅
+                        </button>
+                    </td>
+                {% endif %}
+
+                {% if key == 'gui_enabled_engines' %}
+                    <td style="width: 15%;">
+                        <label class="secrets_key" for="secret_{{ key }}">{{ key }} (separated by ",") - when empty, all engines are enabled.</label>
+                    </td>
+                    <td style="width: 50%;">
+                        <input class="enabled_engines_value" type="text" id="secret_{{ key }}" name="{{ key }}"
+                            value="{{ value | join(',') }}" readonly>
+                    </td>
+                    <td style="width: 15%">
+                        <button type="button" id="edit_{{ key }}" onclick="editSecret('{{ key }}')">✏️</button>
+                        <button type="button" id="cancel_{{ key }}" onclick="cancelEdit('{{ key }}', '{{ value | join(',') }}', 'text')"
+                            style="display:none;">
+                            ❌
+                        </button>
+                        <button type="button" id="validate_{{ key }}" onclick="validateEdit('{{ key }}', 'text')"
+                            style="display:none;">
+                            ✅
+                        </button>
+                    </td>
+                {% endif %}
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn save" style="margin-bottom: 20px;">Save</button>
+</form>
+
+<div id="toast" class="toast"></div>
+    <script>
+        function editSecret(key) {
+            const input = document.getElementById('secret_' + key);
+            input.type = 'text';
+            input.readOnly = false;
+            input.dataset.originalValue = input.value;
+            document.getElementById('cancel_' + key).style.display = 'inline';
+            document.getElementById('validate_' + key).style.display = 'inline';
+            document.getElementById('edit_' + key).style.display = 'none';
+        }
+
+        function cancelEdit(key, originalValue, input_type) {
+            const input = document.getElementById('secret_' + key);
+            input.value = input.dataset.originalValue;
+            input.type = input_type;
+            input.readOnly = true;
+            document.getElementById('cancel_' + key).style.display = 'none';
+            document.getElementById('validate_' + key).style.display = 'none';
+            document.getElementById('edit_' + key).style.display = 'inline';
+        }
+
+        function validateEdit(key, input_type) {
+            const input = document.getElementById('secret_' + key);
+            input.readOnly = true;
+            document.getElementById('cancel_' + key).style.display = 'none';
+            document.getElementById('validate_' + key).style.display = 'none';
+            document.getElementById('edit_' + key).style.display = 'inline';
+            input.type = input_type;
+        }
+
+        document.getElementById('configForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/update_config', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    showToast(data.message);
+                })
+                .catch(error => {
+                    showToast('An error occurred.', 'error');
+                });
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast show ' + (message.toLowerCase().includes('error') ? 'error' : 'success');
+            toast.textContent = message;
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+    </script>
+</div>
+
+{% endblock content %}

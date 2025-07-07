@@ -1,0 +1,16 @@
+__pycache__/
+.dccache
+.pytest_cache
+.qodo
+.ruff_cache
+.venv
+*.csv
+*.db
+*.txt
+*.xlsx
+data/
+log*/
+secrets.json
+tests/
+site/
+.cache/

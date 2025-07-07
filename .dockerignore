@@ -1,0 +1,44 @@
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore python cache directories
+__pycache__
+
+# Ignore git directory
+.git
+
+# Ignore tests directory
+tests
+
+# Ignore .github directory
+.github
+
+# Ignore Markdown files
+*.md
+
+# Ignore ini files
+*.ini
+
+# Ignore project files
+*.toml
+
+# Ignore yaml files
+*.yaml
+*.yml
+
+# Ignore CNAME file
+CNAME
+
+# ignore docs/
+docs/
+
+# Ignore site
+site/
+
+# Ignore site cache
+.cache/
